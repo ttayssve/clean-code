@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Order {
     private Cpf cpf;
+    private Coupon coupon;
     private List<OrderItem> orderItems;
 
     public Order(String cpf) {
@@ -15,10 +16,20 @@ public class Order {
         this.orderItems.add(new OrderItem(item.getIdItem(), item.getPrice(), quantity));
     }
 
+    public void addCoupon(Coupon coupon) {
+        this.coupon = coupon;
+    }
+
     public BigDecimal getTotal() {
-        return this.orderItems.stream()
+        BigDecimal total = this.orderItems.stream()
                 .map(OrderItem::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return this.coupon != null ? total.subtract(discountValue(total)) : total;
+    }
+
+    private BigDecimal discountValue(BigDecimal total) {
+        return BigDecimal.valueOf((this.coupon.getPercentage() * total.doubleValue()) / 100);
     }
 
     public Cpf getCpf() {
@@ -27,6 +38,14 @@ public class Order {
 
     public void setCpf(Cpf cpf) {
         this.cpf = cpf;
+    }
+
+    public Coupon getCoupon() {
+        return coupon;
+    }
+
+    public void setCoupon(Coupon coupon) {
+        this.coupon = coupon;
     }
 
     public List<OrderItem> getOrderItems() {
