@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OrderTest {
@@ -10,9 +11,7 @@ public class OrderTest {
     @Test
     @DisplayName("Test the creation of an order")
     void createOrder() {
-        Order order = new Order("04778667190");
-        assertEquals(order.getCpf().cpf(), "04778667190");
-        assertEquals(order.getTotal(), BigDecimal.ZERO);
+        assertDoesNotThrow(() -> new Order("04778667190"));
     }
 
     @Test
