@@ -33,17 +33,34 @@ public class OrderTest {
     @DisplayName("Test to create an order with three items with discount coupon")
     void createOrderWithCoupon() {
         ZoneId zoneIdDefault  = ZoneId.of("America/Sao_Paulo");
-        ZonedDateTime couponExpirationDate = LocalDateTime.parse("2099-01-01T12:00:00",
+        ZonedDateTime orderIssueDate = LocalDateTime.parse("2022-01-01T12:00:00",
                 DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
-        Coupon coupon = new Coupon("COUPON10", 10.0, couponExpirationDate);
-        ZonedDateTime issueDate = LocalDateTime.parse("2022-01-01T12:00:00",
-                DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
-        Order order = new Order("04778667190", issueDate);
+        Order order = new Order("04778667190", orderIssueDate);
         order.addItem(createItem(1, "Category A", "A", "1000.0", 10.0, 10.0, 10.0, 10.0), 1);
         order.addItem(createItem(2, "Category B", "B", "2000.0", 10.0, 10.0, 10.0, 10.0), 2);
         order.addItem(createItem(3, "Category C", "C", "3000.0", 10.0, 10.0, 10.0, 10.0), 3);
+        ZonedDateTime couponExpirationDate = LocalDateTime.parse("2099-01-01T12:00:00",
+                DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
+        Coupon coupon = new Coupon("COUPON10", 10.0, couponExpirationDate);
         order.addCoupon(coupon);
         assertEquals(order.getTotal(), new BigDecimal("12600.0"));
+    }
+
+    @Test
+    @DisplayName("Test to create an order with three items with expired discount coupon")
+    void createOrderWithExpiredCoupon() {
+        ZoneId zoneIdDefault  = ZoneId.of("America/Sao_Paulo");
+        ZonedDateTime issueDate = LocalDateTime.parse("2022-01-01T12:00:00",
+                DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
+        Order order = new Order("04778667190", issueDate);
+        order.addItem(new Item(1, "Category A", "A", new BigDecimal("1000.0"), 10.0, 10.0, 10.0, 5.0), 1);
+        order.addItem(new Item(2, "Category B", "B", new BigDecimal("2000.0"), 10.0, 10.0, 10.0, 5.0), 2);
+        order.addItem(new Item(3, "Category C", "C", new BigDecimal("3000.0"), 10.0, 10.0, 10.0, 5.0), 3);
+        ZonedDateTime couponExpirationDate = LocalDateTime.parse("2021-01-01T12:00:00",
+                DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
+        Coupon coupon = new Coupon("COUPON10", 10.0, couponExpirationDate);
+        order.addCoupon(coupon);
+        assertEquals(order.getTotal(), new BigDecimal("14000.0"));
     }
 
     private Item createItem(int idItem, String category, String description, String price, double height,
@@ -59,30 +76,4 @@ public class OrderTest {
                 .weight(weight)
                 .build();
     }
-
-    @Test
-    @DisplayName("Test to create an order with three items with expired discount coupon")
-    void createOrderWithExpiredCoupon() {
-        ZoneId zoneIdDefault  = ZoneId.of("America/Sao_Paulo");
-        ZonedDateTime couponExpirationDate = LocalDateTime.parse("2022-01-01T12:00:00",
-                DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
-        Coupon coupon = new Coupon("COUPON10", 10.0, couponExpirationDate);
-        ZonedDateTime issueDate = LocalDateTime.parse("2022-01-01T12:00:00",
-                DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
-        Order order = new Order("04778667190", issueDate);
-        order.addItem(new Item(1, "Category A", "A", new BigDecimal("1000.0"), 10.0, 10.0, 10.0, 5.0), 1);
-        order.addItem(new Item(2, "Category B", "B", new BigDecimal("2000.0"), 10.0, 10.0, 10.0, 5.0), 2);
-        order.addItem(new Item(3, "Category C", "C", new BigDecimal("3000.0"), 10.0, 10.0, 10.0, 5.0), 3);
-        order.addCoupon(coupon);
-        assertEquals(order.getTotal(), new BigDecimal("14000.0"));
-    }
-
-//    @Test
-//    @DisplayName("Test to create an order with freight")
-//    void createOrderWithFreight() {
-//        Order order = new Order("04778667190");
-//        order.addItem(new Item(1, "Category A", "A",
-//                new BigDecimal("1000.0"), 10.0, 10.0, 10.0, 5.0), 1);
-//        assertEquals(order.getFreight(), 0.0);
-//    }
 }

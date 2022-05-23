@@ -54,9 +54,6 @@ public record Cpf(String cpf) {
     }
 
     private String cleanCpf(String cpf) {
-        return cpf.replace(".", "")
-                .replace(".", "")
-                .replace("-", "")
-                .replace(" ", "");
+        return cpf.replaceAll("[^0-9]", "");
     }
 }

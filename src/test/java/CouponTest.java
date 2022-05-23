@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -18,6 +20,17 @@ public class CouponTest {
                 .build();
         boolean isExpired = coupon.isExpired(null);
         assertFalse(isExpired);
+    }
+
+    @Test
+    @DisplayName("Test for calculate discount")
+    void calculateDiscount() {
+        Coupon coupon = Coupon.builder()
+                .code("COUPON10")
+                .percentage(10.0)
+                .build();
+        assertEquals(new BigDecimal("10.0"),
+                coupon.calculateDiscount(new BigDecimal("100.0")));
     }
 
     @Test

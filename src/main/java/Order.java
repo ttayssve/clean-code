@@ -37,12 +37,8 @@ public class Order {
                 .map(OrderItem::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         if (Objects.nonNull(this.coupon)) {
-            total = total.subtract(discountValue(total));
+            total = total.subtract(this.coupon.calculateDiscount(total));
         }
         return total;
-    }
-
-    private BigDecimal discountValue(BigDecimal total) {
-        return BigDecimal.valueOf((this.coupon.getPercentage() * total.doubleValue()) / 100);
     }
 }
