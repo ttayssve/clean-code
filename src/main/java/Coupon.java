@@ -1,25 +1,20 @@
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.ZonedDateTime;
+import java.util.Objects;
+
+@Getter
+@Setter
+@Builder
 public class Coupon {
     private String code;
     private double percentage;
+    private ZonedDateTime couponExpirationDate;
 
-    public Coupon(String code, double percentage) {
-        this.code = code;
-        this.percentage = percentage;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public double getPercentage() {
-        return percentage;
-    }
-
-    public void setPercentage(double percentage) {
-        this.percentage = percentage;
+    public boolean isExpired(ZonedDateTime dateUse) {
+        if (Objects.isNull(this.couponExpirationDate)) return false;
+        return couponExpirationDate.isBefore(dateUse);
     }
 }

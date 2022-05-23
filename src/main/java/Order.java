@@ -1,15 +1,25 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@Getter
+@Setter
 public class Order {
     private Cpf cpf;
     private Coupon coupon;
     private List<OrderItem> orderItems;
+    private double freight;
+    private ZonedDateTime issueDate;
 
-    public Order(String cpf) {
+    public Order(String cpf, ZonedDateTime issueDate) {
         this.cpf = new Cpf(cpf);
         this.orderItems = new ArrayList<>();
+        this.issueDate = issueDate;
     }
 
     public void addItem(Item item, int quantity) {
@@ -17,42 +27,22 @@ public class Order {
     }
 
     public void addCoupon(Coupon coupon) {
-        this.coupon = coupon;
+        if (!coupon.isExpired(this.issueDate)) {
+            this.coupon = coupon;
+        }
     }
 
     public BigDecimal getTotal() {
         BigDecimal total = this.orderItems.stream()
                 .map(OrderItem::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return this.coupon != null ? total.subtract(discountValue(total)) : total;
+        if (Objects.nonNull(this.coupon)) {
+            total = total.subtract(discountValue(total));
+        }
+        return total;
     }
 
     private BigDecimal discountValue(BigDecimal total) {
         return BigDecimal.valueOf((this.coupon.getPercentage() * total.doubleValue()) / 100);
-    }
-
-    public Cpf getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(Cpf cpf) {
-        this.cpf = cpf;
-    }
-
-    public Coupon getCoupon() {
-        return coupon;
-    }
-
-    public void setCoupon(Coupon coupon) {
-        this.coupon = coupon;
-    }
-
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
-    }
-
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
     }
 }

@@ -1,4 +1,4 @@
-import exception.InvalidCpfException;
+import exception.CpfInvalidException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,12 +15,12 @@ class CpfTest {
     @Test
     @DisplayName("Must test cpf with all numbers the same")
     void validateCpfWithAllTheSameNumbers() {
-        assertThrows(InvalidCpfException.class, () -> new Cpf("11111111111"));
+        assertThrows(CpfInvalidException.class, () -> new Cpf("11111111111"));
     }
 
     @Test
     @DisplayName("Must test cpf with all different numbers")
     void validateCpfWithAllTheDifferentNumbers() {
-        assertThrows(InvalidCpfException.class, () -> new Cpf("047.786.671-12"));
+        assertThrows(CpfInvalidException.class, () -> new Cpf("047.786.671-12"));
     }
 }

@@ -1,4 +1,4 @@
-import exception.InvalidCpfException;
+import exception.CpfInvalidException;
 
 import java.util.Objects;
 
@@ -7,7 +7,7 @@ public record Cpf(String cpf) {
     private final static int FACTOR_DIGIT2 = 11;
 
     public Cpf {
-        if (!validateCpf(cpf)) throw new InvalidCpfException("CPF IS NOT VALID");
+        if (!validateCpf(cpf)) throw new CpfInvalidException("Cpf is not valid.");
     }
 
     private Boolean validateCpf(String cpf) {
