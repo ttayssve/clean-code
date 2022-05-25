@@ -22,11 +22,11 @@ public class OrderTest {
     @DisplayName("Test creating an order with three items")
     void createOrderWithThreeItems() {
         Order order = new Order("04778667190", null);
-        order.addItem(createItem(1, "Category A", "A", "1000.0", 10.0, 10.0, 10.0, 10.0), 1);
-        order.addItem(createItem(2, "Category B", "B", "2000.0", 20.0, 20.0, 20.0, 20.0), 2);
-        order.addItem(createItem(3, "Category C", "C", "3000.0", 30.0, 30.0, 30.0, 30.0), 3);
+        order.addItem(Item.builder().idItem(1).category("Category A").description("A").price(BigDecimal.valueOf(1000.0)).build(), 1);
+        order.addItem(Item.builder().idItem(2).category("Category B").description("B").price(BigDecimal.valueOf(2000.0)).build(), 2);
+        order.addItem(Item.builder().idItem(3).category("Category C").description("C").price(BigDecimal.valueOf(3000.0)).build(), 3);
         BigDecimal total = order.getTotal();
-        assertEquals(total, new BigDecimal("14000.0"));
+        assertEquals(total, BigDecimal.valueOf(14000.0));
     }
 
     @Test
@@ -36,14 +36,14 @@ public class OrderTest {
         ZonedDateTime orderIssueDate = LocalDateTime.parse("2022-01-01T12:00:00",
                 DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
         Order order = new Order("04778667190", orderIssueDate);
-        order.addItem(createItem(1, "Category A", "A", "1000.0", 10.0, 10.0, 10.0, 10.0), 1);
-        order.addItem(createItem(2, "Category B", "B", "2000.0", 10.0, 10.0, 10.0, 10.0), 2);
-        order.addItem(createItem(3, "Category C", "C", "3000.0", 10.0, 10.0, 10.0, 10.0), 3);
+        order.addItem(Item.builder().idItem(1).category("Category A").description("A").price(BigDecimal.valueOf(1000.0)).build(), 1);
+        order.addItem(Item.builder().idItem(2).category("Category B").description("B").price(BigDecimal.valueOf(2000.0)).build(), 2);
+        order.addItem(Item.builder().idItem(3).category("Category C").description("C").price(BigDecimal.valueOf(3000.0)).build(), 3);
         ZonedDateTime couponExpirationDate = LocalDateTime.parse("2099-01-01T12:00:00",
                 DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
         Coupon coupon = new Coupon("COUPON10", 10.0, couponExpirationDate);
         order.addCoupon(coupon);
-        assertEquals(order.getTotal(), new BigDecimal("12600.0"));
+        assertEquals(order.getTotal(), BigDecimal.valueOf(12600.0));
     }
 
     @Test
@@ -53,27 +53,38 @@ public class OrderTest {
         ZonedDateTime issueDate = LocalDateTime.parse("2022-01-01T12:00:00",
                 DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
         Order order = new Order("04778667190", issueDate);
-        order.addItem(new Item(1, "Category A", "A", new BigDecimal("1000.0"), 10.0, 10.0, 10.0, 5.0), 1);
-        order.addItem(new Item(2, "Category B", "B", new BigDecimal("2000.0"), 10.0, 10.0, 10.0, 5.0), 2);
-        order.addItem(new Item(3, "Category C", "C", new BigDecimal("3000.0"), 10.0, 10.0, 10.0, 5.0), 3);
+        order.addItem(Item.builder().idItem(1).category("Category A").description("A").price(BigDecimal.valueOf(1000.0)).build(), 1);
+        order.addItem(Item.builder().idItem(2).category("Category B").description("B").price(BigDecimal.valueOf(2000.0)).build(), 2);
+        order.addItem(Item.builder().idItem(3).category("Category C").description("C").price(BigDecimal.valueOf(3000.0)).build(), 3);
+
         ZonedDateTime couponExpirationDate = LocalDateTime.parse("2021-01-01T12:00:00",
                 DateTimeFormatter.ISO_DATE_TIME).atZone(zoneIdDefault);
         Coupon coupon = new Coupon("COUPON10", 10.0, couponExpirationDate);
         order.addCoupon(coupon);
-        assertEquals(order.getTotal(), new BigDecimal("14000.0"));
+        assertEquals(order.getTotal(), BigDecimal.valueOf(14000.0));
     }
 
-    private Item createItem(int idItem, String category, String description, String price, double height,
-                            double width, double depth, double weight) {
-        return Item.builder()
-                .idItem(idItem)
-                .category(category)
-                .description(description)
-                .price(new BigDecimal(price))
-                .height(height)
-                .width(width)
-                .depth(depth)
-                .weight(weight)
-                .build();
+    @Test
+    @DisplayName("Test create an order with three items and calculating shipping")
+    void createOrderWithThreeItemsAndFreightCalculate() {
+        Order order = new Order("04778667190", null);
+        order.addItem(Item.builder().idItem(1).category("Category A").description("A").price(BigDecimal.valueOf(1000.0))
+                .dimension(Dimension.builder().height(100.0).width(30.0).length(10.0).build()).weight(3).build(), 1);
+        order.addItem(Item.builder().idItem(2).category("Category B").description("B").price(BigDecimal.valueOf(5000.0)).
+                dimension(Dimension.builder().height(100.0).width(50.0).length(50.0).build()).weight(20).build(), 1);
+        order.addItem(Item.builder().idItem(3).category("Category C").description("C").price(BigDecimal.valueOf(30.0)).
+                dimension(Dimension.builder().height(10.0).width(10.0).length(10.0).build()).weight(1).build(), 3);
+        BigDecimal total = order.getTotal();
+        assertEquals(total, BigDecimal.valueOf(6350.0));
+    }
+
+    @Test
+    @DisplayName("Test create an order with three items and calculating shipping")
+    void createOrderWithThreeItemsAndFreightCalculateMinimum() {
+        Order order = new Order("04778667190", null);
+        order.addItem(Item.builder().idItem(3).category("Category C").description("C").price(BigDecimal.valueOf(30.0)).
+                dimension(Dimension.builder().height(10.0).width(10.0).length(10.0).build()).weight(0.9).build(), 1);
+        BigDecimal total = order.getTotal();
+        assertEquals(total, BigDecimal.valueOf(40.0));
     }
 }

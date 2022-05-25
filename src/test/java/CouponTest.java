@@ -29,8 +29,8 @@ public class CouponTest {
                 .code("COUPON10")
                 .percentage(10.0)
                 .build();
-        assertEquals(new BigDecimal("10.0"),
-                coupon.calculateDiscount(new BigDecimal("100.0")));
+        assertEquals(BigDecimal.valueOf(10.0),
+                coupon.calculateDiscount(BigDecimal.valueOf(100.0)));
     }
 
     @Test

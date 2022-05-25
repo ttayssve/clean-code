@@ -13,7 +13,7 @@ public class Order {
     private Cpf cpf;
     private Coupon coupon;
     private List<OrderItem> orderItems;
-    private double freight;
+    private Freight freight;
     private ZonedDateTime issueDate;
 
     public Order(String cpf, ZonedDateTime issueDate) {
@@ -23,6 +23,8 @@ public class Order {
     }
 
     public void addItem(Item item, int quantity) {
+        if (Objects.isNull(this.freight)) this.freight = Freight.builder().build();
+        this.freight.addItem(item.getVolume(), item.getDensity(), quantity);
         this.orderItems.add(new OrderItem(item.getIdItem(), item.getPrice(), quantity));
     }
 
@@ -39,6 +41,7 @@ public class Order {
         if (Objects.nonNull(this.coupon)) {
             total = total.subtract(this.coupon.calculateDiscount(total));
         }
+        total = total.add(this.freight.getTotal());
         return total;
     }
 }
